@@ -1,0 +1,2 @@
+rootProject.name = "WhereAreBus"
+include ':app'
