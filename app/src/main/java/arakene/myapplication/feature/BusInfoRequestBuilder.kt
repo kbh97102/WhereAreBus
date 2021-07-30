@@ -22,36 +22,47 @@ class BusInfoRequestBuilder {
                 ) + "=PhdOlUsywigdA4q4sNpraxKbQ0HbVhjpxx5hRhd6R3Uz8bp8f7VgcxO0Hn9EP2kBsVnx2AFsvR75YNDgbY4Isg%3D%3D"
             )
             append(
-                "&" + URLEncoder.encode("busRouteID", "UTF-8") + "="
+                "&" + URLEncoder.encode("busRouteId", "UTF-8") + "="
                         + URLEncoder.encode(
                     routeID,
                     "UTF-8"
                 )
             )
         }
+        Log.e("URL", builder.toString())
         val url = URL(builder.toString())
         val connection = url.openConnection() as HttpURLConnection
         connection.apply {
             requestMethod = "GET"
             setRequestProperty("Content-type", "application/json")
         }
-        var rd:BufferedReader
-        if (connection.responseCode in 200..300) {
-            rd = BufferedReader(InputStreamReader(connection.inputStream))
+        Log.e("Response Code", connection.responseCode.toString())
+
+        var rd:BufferedReader = if (connection.responseCode in 200..300) {
+            BufferedReader(InputStreamReader(connection.inputStream))
         }else{
-            rd = BufferedReader(InputStreamReader(connection.errorStream))
+            BufferedReader(InputStreamReader(connection.errorStream))
+        }
+        builder.clear()
+
+        rd.lines().forEach {
+            Log.e("Datas", it)
+            builder.append(it)
         }
 
-        builder.clear()
         var line = ""
         try{
-            while (true) {
-                line = rd.readLine()
-                if (line == null){
-                    break
-                }
-                builder.append(line)
-            }
+//            while (true) {
+//                if(rd.readLine() != null){
+//                   rd.
+//                }
+//                line = rd.readLine()
+//                if (line == null){
+//                    break
+//                }
+//                builder.append(line)
+//            }
+
         }catch (e : IOException){
 
         }
