@@ -15,10 +15,19 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 class BusInfoRequestBuilder {
 
+    companion object{
+        const val STATION = "busStation"
+        const val FIRSTBUS = "first"
+        const val FIRSTTIME = "firstTime"
+        const val SECONDBUS = "second"
+        const val SECONDTIME = "secondTime"
+    }
+
     private val getRouteAllHead = "http://ws.bus.go.kr/api/rest/arrive/getArrInfoByRouteAll"
 
 
-    fun getAllBusStopInfo(routeID: String) {
+    fun getAllBusStopInfo(routeID: String):HashMap<String, HashMap<String, String>> {
+        val busInfo = HashMap<String, HashMap<String, String>>()
         val builder = StringBuilder(getRouteAllHead).apply {
             append(
                 "?" + URLEncoder.encode(
@@ -74,6 +83,16 @@ class BusInfoRequestBuilder {
             val secondBusID = getInfo(element, "vehId2")
             val secondBusTime = getInfo(element, "exps2")
 
+            val info = HashMap<String, String>().apply {
+                put(STATION, currentStationName)
+                put(FIRSTBUS, firstBusID)
+                put(FIRSTTIME, firstBusTime)
+                put(SECONDBUS, secondBusID)
+                put(SECONDTIME, secondBusTime)
+            }
+
+            busInfo.put(currentStationName, info)
+
             Log.e("Station Info", "Station Name $currentStationName, first Bus ID $firstBusID, first bus arrive time $firstBusTime" +
                     ", second bus ID $secondBusID, second bus arrive time $secondBusTime")
         }
@@ -84,6 +103,7 @@ class BusInfoRequestBuilder {
         connection.disconnect()
 
         Log.e("Request Body", builder.toString())
+        return busInfo
     }
 
     private fun getInfo(element: Element, name:String):String{
