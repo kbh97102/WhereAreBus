@@ -2,10 +2,7 @@ package arakene.myapplication.feature
 
 import android.util.Log
 import org.w3c.dom.Element
-import org.w3c.dom.NodeList
 import org.xml.sax.InputSource
-import org.xmlpull.v1.XmlPullParser
-import org.xmlpull.v1.XmlPullParserFactory
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
@@ -21,12 +18,15 @@ class BusInfoRequestBuilder {
         const val FIRSTTIME = "firstTime"
         const val SECONDBUS = "second"
         const val SECONDTIME = "secondTime"
+        const val NODATA = "NoData"
     }
 
     private val getRouteAllHead = "http://ws.bus.go.kr/api/rest/arrive/getArrInfoByRouteAll"
 
-
-    fun getAllBusStopInfo(routeID: String):HashMap<String, HashMap<String, String>> {
+    /**
+     * 버스 ID를 던져주면 해당 버스가 지나가는 모든 노선의 도착 예정 버스 정보를 알려줌
+     */
+    fun getAllBusStopInfo(busID: String):HashMap<String, HashMap<String, String>> {
         val busInfo = HashMap<String, HashMap<String, String>>()
         val builder = StringBuilder(getRouteAllHead).apply {
             append(
@@ -38,7 +38,7 @@ class BusInfoRequestBuilder {
             append(
                 "&" + URLEncoder.encode("busRouteId", "UTF-8") + "="
                         + URLEncoder.encode(
-                    routeID,
+                    busID,
                     "UTF-8"
                 )
             )
@@ -96,14 +96,23 @@ class BusInfoRequestBuilder {
             Log.e("Station Info", "Station Name $currentStationName, first Bus ID $firstBusID, first bus arrive time $firstBusTime" +
                     ", second bus ID $secondBusID, second bus arrive time $secondBusTime")
         }
-
-
-
+        
         rd.close()
         connection.disconnect()
 
         Log.e("Request Body", builder.toString())
         return busInfo
+    }
+
+    fun getBusArriveInfoSpecificStation(busID: String, station: String):HashMap<String, String>{
+        val busInfoMap = getAllBusStopInfo(busID)
+
+        busInfoMap.keys.forEach {
+            if (it == station){
+                return busInfoMap[it]!!
+            }
+        }
+        return HashMap<String, String>().apply { put(NODATA, NODATA) }
     }
 
     private fun getInfo(element: Element, name:String):String{
