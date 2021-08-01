@@ -1,19 +1,24 @@
 package arakene.myapplication.feature
 
 import android.util.Log
+import org.w3c.dom.Element
+import org.w3c.dom.NodeList
+import org.xml.sax.InputSource
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserFactory
 import java.io.BufferedReader
-import java.io.IOException
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
+import javax.xml.parsers.DocumentBuilderFactory
 
 class BusInfoRequestBuilder {
 
     private val getRouteAllHead = "http://ws.bus.go.kr/api/rest/arrive/getArrInfoByRouteAll"
 
 
-    fun getAllRoute(routeID: String) {
+    fun getAllBusStopInfo(routeID: String) {
         val builder = StringBuilder(getRouteAllHead).apply {
             append(
                 "?" + URLEncoder.encode(
@@ -38,38 +43,52 @@ class BusInfoRequestBuilder {
         }
         Log.e("Response Code", connection.responseCode.toString())
 
-        var rd:BufferedReader = if (connection.responseCode in 200..300) {
+        var rd: BufferedReader = if (connection.responseCode in 200..300) {
             BufferedReader(InputStreamReader(connection.inputStream))
-        }else{
+        } else {
             BufferedReader(InputStreamReader(connection.errorStream))
         }
         builder.clear()
 
-        rd.lines().forEach {
-            Log.e("Datas", it)
-            builder.append(it)
+        val factory = DocumentBuilderFactory.newInstance()
+        val documentBuilder = factory.newDocumentBuilder()
+        val doc = documentBuilder.parse(InputSource(url.openStream()))
+        doc.documentElement.normalize()
+
+        val nodeList = doc.getElementsByTagName("itemList")
+
+        Log.e("Node list size", nodeList.length.toString())
+
+
+        /**
+         * TODO 버스 id , 도착시간이 0이면 예정이 없는거임 예외처리 할 것
+         * TODO ord도 알아 낼 수 있음
+         */
+        for (i in 0 until nodeList.length-1){
+            val node = nodeList.item(i)
+            val element = node as Element
+
+            val currentStationName = getInfo(element, "stNm")
+            val firstBusID = getInfo(element, "vehId1")
+            val firstBusTime = getInfo(element, "exps1")
+            val secondBusID = getInfo(element, "vehId2")
+            val secondBusTime = getInfo(element, "exps2")
+
+            Log.e("Station Info", "Station Name $currentStationName, first Bus ID $firstBusID, first bus arrive time $firstBusTime" +
+                    ", second bus ID $secondBusID, second bus arrive time $secondBusTime")
         }
 
-        var line = ""
-        try{
-//            while (true) {
-//                if(rd.readLine() != null){
-//                   rd.
-//                }
-//                line = rd.readLine()
-//                if (line == null){
-//                    break
-//                }
-//                builder.append(line)
-//            }
 
-        }catch (e : IOException){
 
-        }
         rd.close()
         connection.disconnect()
 
         Log.e("Request Body", builder.toString())
+    }
+
+    private fun getInfo(element: Element, name:String):String{
+        val list = element.getElementsByTagName(name)
+        return list.item(0).childNodes.item(0).nodeValue
     }
 
 }

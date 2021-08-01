@@ -6,7 +6,6 @@ import arakene.myapplication.feature.BusInfoRequestBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,7 +13,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         CoroutineScope(Dispatchers.IO).launch {
-            val busInfo = BusInfoRequestBuilder().getAllRoute("100100352")
+            val busInfo = BusInfoRequestBuilder().getAllBusStopInfo("100100352")
         }
 
 
