@@ -120,4 +120,52 @@ class BusInfoRequestBuilder {
         return list.item(0).childNodes.item(0).nodeValue
     }
 
+    fun findStationName(name: String): HashMap<String, String> {
+        val builder = StringBuilder("http://ws.bus.go.kr/api/rest/stationinfo/getStationByName").apply {
+            append("?ServiceKey="+"PhdOlUsywigdA4q4sNpraxKbQ0HbVhjpxx5hRhd6R3Uz8bp8f7VgcxO0Hn9EP2kBsVnx2AFsvR75YNDgbY4Isg%3D%3D")
+            append("&stSrch="+URLEncoder.encode(name, "UTF-8"))
+        }
+        val url = URL(builder.toString())
+        val connection = url.openConnection() as HttpURLConnection
+        connection.apply {
+            requestMethod = "GET"
+            setRequestProperty("Content-type", "application/json")
+        }
+        Log.e("Response Code", connection.responseCode.toString())
+
+        var rd: BufferedReader = if (connection.responseCode in 200..300) {
+            BufferedReader(InputStreamReader(connection.inputStream))
+        } else {
+            BufferedReader(InputStreamReader(connection.errorStream))
+        }
+        builder.clear()
+
+        val factory = DocumentBuilderFactory.newInstance()
+        val documentBuilder = factory.newDocumentBuilder()
+        val doc = documentBuilder.parse(InputSource(url.openStream()))
+        doc.documentElement.normalize()
+
+        val nodeList = doc.getElementsByTagName("itemList")
+
+        val infoMap = HashMap<String, String>()
+
+        for (i in 0 until nodeList.length-1){
+            val node = nodeList.item(i)
+            val element = node as Element
+
+            val stID = getInfo(element, "stId")
+            val stName = getInfo(element, "stNm")
+            val arsId = getInfo(element, "arsId")
+            infoMap.apply {
+                put("stId", stID)
+                put("stName", stName)
+                put("arsId", arsId)
+            }
+        }
+
+        rd.close()
+        connection.disconnect()
+        return infoMap
+    }
+
 }
