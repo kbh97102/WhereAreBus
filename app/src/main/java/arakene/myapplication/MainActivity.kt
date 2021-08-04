@@ -13,7 +13,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         CoroutineScope(Dispatchers.IO).launch {
-            val busInfo = BusInfoRequestBuilder().getAllBusStopInfo("100100352")
+//            val busInfo = BusInfoRequestBuilder().getAllBusStopInfo("100100352")
+            val statationInfo = BusInfoRequestBuilder().findStationName("구산")
         }
 
 

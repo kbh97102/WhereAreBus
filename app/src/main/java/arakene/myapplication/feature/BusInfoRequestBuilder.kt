@@ -120,7 +120,8 @@ class BusInfoRequestBuilder {
         return list.item(0).childNodes.item(0).nodeValue
     }
 
-    fun findStationName(name: String): HashMap<String, String> {
+    fun findStationName(name: String): HashMap<String, HashMap<String, String>> {
+        val returnMap = HashMap<String, HashMap<String, String>>()
         val builder = StringBuilder("http://ws.bus.go.kr/api/rest/stationinfo/getStationByName").apply {
             append("?ServiceKey="+"PhdOlUsywigdA4q4sNpraxKbQ0HbVhjpxx5hRhd6R3Uz8bp8f7VgcxO0Hn9EP2kBsVnx2AFsvR75YNDgbY4Isg%3D%3D")
             append("&stSrch="+URLEncoder.encode(name, "UTF-8"))
@@ -161,11 +162,14 @@ class BusInfoRequestBuilder {
                 put("stName", stName)
                 put("arsId", arsId)
             }
+            returnMap.put(stName, infoMap)
         }
+
+        Log.e("Datas", returnMap.toString())
 
         rd.close()
         connection.disconnect()
-        return infoMap
+        return returnMap
     }
 
 }
