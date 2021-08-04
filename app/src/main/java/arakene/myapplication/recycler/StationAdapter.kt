@@ -8,7 +8,7 @@ import arakene.myapplication.databinding.StationListItemBinding
 class StationAdapter(var items : Array<HashMap<String, String>>): RecyclerView.Adapter<StationViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StationViewHolder {
-        val view = StationListItemBinding.inflate(LayoutInflater.from(parent.context), parent, null)
+        val view = StationListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return StationViewHolder(view)
     }
 
