@@ -5,7 +5,7 @@ import arakene.myapplication.databinding.StationListItemBinding
 
 class StationViewHolder(binding: StationListItemBinding) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind() {
+    fun bind(hashMap: HashMap<String, String>) {
 
     }
 
